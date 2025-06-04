@@ -20,15 +20,21 @@ class ShellIntegrationInstaller:
                 
                 # For pip-installed packages, look in multiple possible locations
                 possible_locations = [
+                    # Virtual environment location (venv/share)
+                    package_path.parent.parent.parent / "share" / "signed-bin-dir" / "shell_integrations",
                     # Standard pip install location (site-packages/../share)
                     package_path.parent.parent / "share" / "signed-bin-dir" / "shell_integrations",
-                    # Alternative pip install location (venv/share)
-                    package_path.parent.parent.parent / "share" / "signed-bin-dir" / "shell_integrations",
                     # Development install location (project root)
                     package_path.parent / "shell_integrations",
                     # Legacy location (site-packages/shell_integrations)
                     package_path.parent / "shell_integrations",
                 ]
+                
+                # Also check if we're in a virtual environment and add venv-specific paths
+                if hasattr(sys, 'prefix') and sys.prefix != sys.base_prefix:
+                    # We're in a virtual environment
+                    venv_path = Path(sys.prefix)
+                    possible_locations.insert(0, venv_path / "share" / "signed-bin-dir" / "shell_integrations")
                 
                 # Find the first location that exists
                 for location in possible_locations:

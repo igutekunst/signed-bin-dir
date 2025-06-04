@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "signed-bin-dir"
-version = "0.1.3"
+version = "0.1.4"
 description = "Secure tool signing system for automatically adding project-specific tools to PATH"
 authors = [
     {name = "Isaac Harrison Gutekunst", email = "isaac@supercortex.io"},
