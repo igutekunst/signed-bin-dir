@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "signed-bin-dir"
-version = "0.1.0"
+version = "0.1.3"
 description = "Secure tool signing system for automatically adding project-specific tools to PATH"
 authors = [
     {name = "Isaac Harrison Gutekunst", email = "isaac@supercortex.io"},
@@ -42,6 +42,18 @@ verify-bin-dir = "signed_bin_dir.cli:verify"
 [project.urls]
 Homepage = "https://github.com/igutekunst/signed-bin-dir"
 Repository = "https://github.com/igutekunst/signed-bin-dir"
+
+[tool.hatch.build.targets.wheel]
+packages = ["signed_bin_dir"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"shell_integrations" = "share/signed-bin-dir/shell_integrations"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/signed_bin_dir",
+    "/shell_integrations",
+]
 
 [tool.black]
 line-length = 88

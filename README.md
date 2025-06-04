@@ -23,18 +23,16 @@ This tool uses your existing SSH key pair for signing and verification:
 
 ## Installation
 
-### Install the Package
+### Install from PyPI
 
 ```bash
-# Clone the repository
+# Install the latest version from PyPI
+pip install signed-bin-dir
+
+# Or install in development mode from source
 git clone https://github.com/igutekunst/signed-bin-dir.git
 cd signed-bin-dir
-
-# Install in development mode
 pip install -e .
-
-# Or install from PyPI (when published)
-pip install signed-bin-dir
 ```
 
 ### Shell Integration (Automatic)
@@ -56,17 +54,24 @@ sign-bin-dir status
 sign-bin-dir uninstall --all
 ```
 
+The shell integration files are automatically included with the pip package, so no additional setup is required.
+
 ### Shell Integration (Manual)
 
-If you prefer manual setup:
+If you prefer manual setup, you can find the integration files in your Python environment after installation:
+
+```bash
+# Find the integration files
+python3 -c "import signed_bin_dir; from pathlib import Path; print(Path(signed_bin_dir.__file__).parent.parent / 'share' / 'signed-bin-dir' / 'shell_integrations')"
+```
 
 #### Fish Shell
 
 Add to your `~/.config/fish/config.fish`:
 
 ```fish
-# Source the signed-bin-dir integration
-source /path/to/signed-bin-dir/shell_integrations/signed_bin_dir.fish
+# Source the signed-bin-dir integration (adjust path as needed)
+source /path/to/shell_integrations/signed_bin_dir.fish
 ```
 
 #### Bash Shell
@@ -74,8 +79,8 @@ source /path/to/signed-bin-dir/shell_integrations/signed_bin_dir.fish
 Add to your `~/.bashrc`:
 
 ```bash
-# Source the signed-bin-dir integration
-source /path/to/signed-bin-dir/shell_integrations/signed_bin_dir.bash
+# Source the signed-bin-dir integration (adjust path as needed)
+source /path/to/shell_integrations/signed_bin_dir.bash
 ```
 
 ## Usage
@@ -164,7 +169,7 @@ my-project/
 
 1. **Install the package**:
    ```bash
-   pip install -e .
+   pip install signed-bin-dir
    ```
 
 2. **Set up shell integration**:
@@ -174,14 +179,16 @@ my-project/
 
 3. **Restart your shell** or source your config file
 
-4. **Try the demo**:
+4. **Try with a project**:
    ```bash
-   cd examples/demo-project
+   mkdir my-project && cd my-project
+   mkdir bin
+   echo '#!/bin/bash\necho "Hello from my tool!"' > bin/my-tool
+   chmod +x bin/my-tool
    sign-bin-dir sign bin
-   hello    # Works!
-   deploy   # Works!
+   my-tool    # Works!
    cd ..
-   hello    # Command not found (removed from PATH)
+   my-tool    # Command not found (removed from PATH)
    ```
 
 ## How It Works
@@ -292,7 +299,6 @@ Isaac Harrison Gutekunst <isaac@supercortex.io>
 - Check installation status: `sign-bin-dir status`
 - Reinstall integration: `sign-bin-dir install`
 - Restart your shell or source the config file
-- Check for Python import errors: `python3 -c "from signed_bin_dir.path_manager import PathManager"`
 
 **Integration installer issues**
 - Make sure you have write permissions to your shell config files

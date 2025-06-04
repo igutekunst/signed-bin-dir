@@ -2,6 +2,7 @@
 
 import os
 import shutil
+import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -12,19 +13,60 @@ class ShellIntegrationInstaller:
     def __init__(self, project_root: Optional[Path] = None):
         """Initialize with project root path."""
         if project_root is None:
-            # Try to find the project root by looking for pyproject.toml
-            current = Path(__file__).parent
-            while current != current.parent:
-                if (current / "pyproject.toml").exists():
-                    project_root = current
-                    break
-                current = current.parent
-            else:
-                # Fallback to parent of this file
-                project_root = Path(__file__).parent.parent
-        
-        self.project_root = project_root
-        self.shell_integrations_dir = project_root / "shell_integrations"
+            # Try to find shell integrations in installed package first
+            try:
+                import signed_bin_dir
+                package_path = Path(signed_bin_dir.__file__).parent
+                
+                # For pip-installed packages, look in multiple possible locations
+                possible_locations = [
+                    # Standard pip install location (site-packages/../share)
+                    package_path.parent.parent / "share" / "signed-bin-dir" / "shell_integrations",
+                    # Alternative pip install location (venv/share)
+                    package_path.parent.parent.parent / "share" / "signed-bin-dir" / "shell_integrations",
+                    # Development install location (project root)
+                    package_path.parent / "shell_integrations",
+                    # Legacy location (site-packages/shell_integrations)
+                    package_path.parent / "shell_integrations",
+                ]
+                
+                # Find the first location that exists
+                for location in possible_locations:
+                    if location.exists() and (location / "signed_bin_dir.fish").exists():
+                        self.shell_integrations_dir = location
+                        self.project_root = location.parent.parent if "share" in str(location) else location.parent
+                        break
+                else:
+                    # Fallback: try to find project root by looking for pyproject.toml
+                    current = package_path
+                    while current != current.parent:
+                        if (current / "pyproject.toml").exists():
+                            self.project_root = current
+                            self.shell_integrations_dir = current / "shell_integrations"
+                            break
+                        current = current.parent
+                    else:
+                        # Last resort: use package directory
+                        self.project_root = package_path.parent
+                        self.shell_integrations_dir = package_path.parent / "shell_integrations"
+                        
+            except ImportError:
+                # Package not installed, try to find project root
+                current = Path(__file__).parent
+                while current != current.parent:
+                    if (current / "pyproject.toml").exists():
+                        project_root = current
+                        break
+                    current = current.parent
+                else:
+                    # Fallback to parent of this file
+                    project_root = Path(__file__).parent.parent
+                
+                self.project_root = project_root
+                self.shell_integrations_dir = project_root / "shell_integrations"
+        else:
+            self.project_root = project_root
+            self.shell_integrations_dir = project_root / "shell_integrations"
     
     def get_shell_configs(self) -> Dict[str, List[Path]]:
         """Get shell configuration file paths for different shells."""
